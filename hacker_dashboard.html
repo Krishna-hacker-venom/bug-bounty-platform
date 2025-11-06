@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Researcher Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        // Define custom colors for status badges
+                        'status-accepted': '#34D399', // Green-400
+                        'status-pending': '#FBBF24',  // Amber-400
+                        'status-rejected': '#F87171', // Red-400
+                        'status-resolved': '#10B981', // Emerald-500
+                        'status-triaged': '#60A5FA',  // Blue-400
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-100 min-h-screen font-sans">
+
+    <nav class="bg-white shadow-md p-4 sticky top-0 z-10">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold text-indigo-600">Bug Bounty Hub</h1>
+            <div class="flex items-center space-x-4">
+                <span class="text-sm font-medium text-gray-700 hidden sm:inline-block" id="welcome-message">Welcome, Researcher!</span>
+                <a href="learn.html" class="text-sm font-medium bg-indigo-600 text-white px-3 py-1 rounded-lg hover:bg-indigo-700 transition">
+                    Learn
+                </a>
+                <a href="target.html" class="text-sm font-medium bg-indigo-600 text-white px-3 py-1 rounded-lg hover:bg-indigo-700 transition">
+                   New Target
+                </a>
+                <a href="submit_report.html" class="text-sm font-medium bg-indigo-600 text-white px-3 py-1 rounded-lg hover:bg-indigo-700 transition">
+                    Submit New Report
+                </a>
+                
+                
+                <button onclick="logout()" class="text-sm font-medium text-red-5
+                00 hover:text-red-700 transition">Logout</button>
+            </div>
+        </div>
+    </nav>
+    
+    <main class="max-w-7xl mx-auto p-4 md:p-8">
+        <h2 class="text-3xl font-bold text-gray-900 mb-6 border-b pb-2">My Researcher Dashboard</h2>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8" id="metrics">
+            <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-yellow-500">
+                <p class="text-sm font-medium text-gray-500">Reputation Score</p>
+                <p class="text-4xl font-extrabold text-gray-900 mt-1" id="reputation-score">1500</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-blue-500">
+                <p class="text-sm font-medium text-gray-500">Global Rank</p>
+                <p class="text-4xl font-extrabold text-gray-900 mt-1" id="global-rank">#45</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-green-500">
+                <p class="text-sm font-medium text-gray-500">Accepted Reports</p>
+                <p class="text-4xl font-extrabold text-gray-900 mt-1" id="accepted-reports-count">12</p>
+            </div>
+             <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-indigo-500">
+                <p class="text-sm font-medium text-gray-500">Total Bounty Earned</p>
+                <p class="text-4xl font-extrabold text-gray-900 mt-1" id="bounty-earned">$4,500</p>
+            </div>
+        </div>
+        
+        <section class="bg-white p-6 rounded-xl shadow-lg overflow-hidden">
+            <div class="flex justify-between items-center mb-4">
+                 <h3 class="text-xl font-semibold text-gray-800">My Submitted Reports</h3>
+                 <a href="submit_report.html" class="hidden sm:inline-flex bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg shadow-md transition duration-150 text-sm">
+                    + New Report
+                </a>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Report ID</th>
+                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Program</th>
+                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Severity</th>
+                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Date</th>
+                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200" id="reports-table-body">
+                        </tbody>
+                </table>
+                <p id="no-reports-message" class="hidden text-center text-gray-500 py-8">
+                    You haven't submitted any reports yet. Start hunting!
+                </p>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- DUMMY DATA --- (This will be replaced by API calls in the JS phase)
+        const reports = [
+            { id: 'BB-1005', program: 'Secure Bank', severity: 'Critical', status: 'Resolved', date: '2025-10-10' },
+            { id: 'BB-1004', program: 'Global Tech', severity: 'High', status: 'Accepted', date: '2025-10-15' },
+            { id: 'BB-1003', program: 'Acme Corp', severity: 'Medium', status: 'Triaged', date: '2025-10-20' },
+            { id: 'BB-1002', program: 'Beta App', severity: 'Low', status: 'Pending', date: '2025-10-24' },
+            { id: 'BB-1001', program: 'Acme Corp', severity: 'Info', status: 'Rejected', date: '2025-10-30' },
+        ];
+
+        const tableBody = document.getElementById('reports-table-body');
+        const noReportsMsg = document.getElementById('no-reports-message');
+
+        function loadReports(data) {
+            if (data.length === 0) {
+                noReportsMsg.classList.remove('hidden');
+                return;
+            }
+
+            data.forEach(report => {
+                let statusColor = '';
+                // Map status to Tailwind class for styling the badge
+                switch(report.status.toLowerCase()) {
+                    case 'accepted':
+                        statusColor = 'bg-status-accepted text-green-800';
+                        break;
+                    case 'resolved':
+                        statusColor = 'bg-status-resolved text-emerald-800';
+                        break;
+                    case 'pending':
+                        statusColor = 'bg-status-pending text-yellow-800';
+                        break;
+                    case 'triaged':
+                        statusColor = 'bg-status-triaged text-blue-800';
+                        break;
+                    case 'rejected':
+                        statusColor = 'bg-status-rejected text-red-800';
+                        break;
+                    default:
+                        statusColor = 'bg-gray-400 text-gray-800';
+                }
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-indigo-600">${report.id}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${report.program}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${report.severity}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-opacity-30 ${statusColor} border border-opacity-50">
+                            ${report.status}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${report.date}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <a href="#" class="text-indigo-600 hover:text-indigo-900 transition">View</a>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+        
+        // Execute the report loading function on page load
+        loadReports(reports);
+
+        // Placeholder logout function
+        function logout() {
+            // In the JS/Authentication phase, this will clear the token and redirect to login.
+            alert('Logging out...'); 
+             window.location.href = 'index.html'; 
+        }
+    </script>
+</body>
+</html>
